@@ -11,3 +11,98 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.App-logo {
+  height: 30px;
+  padding: 5px 10px;
+}
+
+.top-bar {
+  background-color: #282c34;
+  color: white;
+  height: 40px;
+  position: absolute;
+  width: 100%;
+  /* display: block; */
+  vertical-align: middle;
+  display: flex;
+  margin: 0 auto;
+}
+
+.title {
+  line-height: 40px;
+}
+
+.body {
+  padding-top: 40px;
+}
+
+form {
+  width: 100%;
+  padding-top: 10px;
+  background-color: #f2f2f2;
+}
+
+form label {
+  margin-left: 10px;
+  height: 26px;
+  display: block;
+	margin-bottom: 10px;
+}
+
+span.extend {
+  margin-left: 4px;
+  padding: 4px 0;
+}
+
+span.describe {
+	width: 150px;
+	float: left;
+	padding: 4px 4px;
+}
+
+form input {
+  box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #C2C2C2;
+	box-shadow: 1px 1px 4px #EBEBEB;
+	-moz-box-shadow: 1px 1px 4px #EBEBEB;
+	-webkit-box-shadow: 1px 1px 4px #EBEBEB;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	padding: 7px;
+  outline: none;
+  margin-left: 8px;
+}
+
+form input.range {
+  width: 10%;
+  margin-right: 8px;
+}
+
+input[type=text] {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  width: 50%;
+}
+
+form input[type=submit],
+form input[type=button]{
+  margin: 15px;
+	border: none;
+	padding: 8px 15px 8px 15px;
+	background: #1CD1A4;
+	color: #fff;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+}
+
+form input[type=submit]:hover,
+form input[type=button]:hover{
+	background:#1cc2d1;
+	color: #fff;
+}
