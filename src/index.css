@@ -106,3 +106,23 @@ form input[type=button]:hover{
 	background:#1cc2d1;
 	color: #fff;
 }
+
+.results {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.result-title {
+  border-bottom: 1px solid #000000;
+  font-size: 24px;
+}
+
+.result-row {
+  margin: auto;
+  margin-top: 15px;
+  padding: 15px;
+  width: 95%;
+  border: 1px solid #000000;
+  border-radius: 12px;
+  background-color: #fdfdfd;
+}

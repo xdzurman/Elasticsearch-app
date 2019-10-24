@@ -11,14 +11,16 @@ class SearchField extends React.Component {
             lossesLow: '',
             lossesHigh: '',
             yearLow: '',
-            yearLowBC: false,
             yearHigh: '',
-            yearHighBC: '',
+            sort: 'score',
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCheckbox = this.handleCheckbox.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.appendRangePairQuery = this.appendRangePairQuery.bind(this);
+        this.appendRangeSingleQuery = this.appendRangeSingleQuery.bind(this);
+        this.getSortQuery = this.getSortQuery.bind(this);
     }
 
     handleCheckbox(e) {
@@ -26,11 +28,139 @@ class SearchField extends React.Component {
     }
 
     handleInputChange(e) {
+      console.log(e.target.name, e.target.value)
         this.setState({[e.target.name]: e.target.value});
     }
 
-    handleSubmit() {
+    getSortQuery(type) {
+      if (type === 'score') {
+        return '_score'
+      } else if (type === 'year') {
+        return { year: 'desc' }
+      }
+    }
+
+    appendRangeSingleQuery(low, high, property) {
+      return low !== '' && high !== '' ? {
+        bool: {
+          must: [
+            {
+              range: {
+                [property]: {
+                  gte: low
+                }
+              }
+            },
+            {
+              range: {
+                [property]: {
+                  lte: high
+                }
+              }
+            }
+          ]
+        }
+      } : {}
+    }
+
+    appendRangePairQuery(low, high, property1, property2) {
+      return low !== '' && high !== '' ? {
+        "bool": {
+          "must": [
+            {
+              "bool": {
+                "should": [
+                  {
+                    "range": {
+                      [property1]: {
+                        "gte": low
+                      }
+                    }
+                  },
+                  {
+                    "range": {
+                      [property2]: {
+                        "gte": low
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "bool": {
+                "should": [
+                  {
+                    "range": {
+                      [property1]: {
+                        "lte": high
+                      }
+                    }
+                  },
+                  {
+                    "range": {
+                      [property2]: {
+                        "lte": high
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      } : {}
+    }
+
+    async handleSubmit(e) {
+        e.preventDefault()
+
+        const req = {
+            sort: this.getSortQuery(this.state.sort),
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "multi_match": {
+                      "query": this.state.query,
+                      "fields": [
+                        "title^5",
+                        "text",
+                        "belligerents1^3",
+                        "belligerents2^3",
+                        "leaders1^3",
+                        "leaders2^3"
+                      ]
+                    }
+                  },
+                  this.appendRangePairQuery(this.state.strengthLow, this.state.strengthHigh,
+                    'strength1', 'strength2'),
+                  this.appendRangePairQuery(this.state.lossesLow, this.state.lossesHigh,
+                    'losses1', 'losses2'),
+                  this.appendRangeSingleQuery(this.state.yearLow, this.state.yearHigh,
+                    'year'),
+                ] 
+              }
+            },
+            "highlight": {
+              "fields": {
+                "title": {}
+              }
+            }
+          }
         
+        const cleanedReq = JSON.stringify(req).replace(/,{}/g, '')
+        // console.log(JSON.stringify(req))
+        console.log(JSON.stringify(req).replace(/,{}/g, ''))
+
+        const data = await fetch('/battles/_search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: cleanedReq
+        }).then(res => res.json()).catch(e => console.log(e))
+        this.props.fillResults(data)
     }
 
     render() {
@@ -64,7 +194,7 @@ class SearchField extends React.Component {
                             className="range"
                             name="strengthLow"
                             type="number"
-                            checked={this.state.fuzzy}
+                            value={this.state.strengthLow}
                             onChange={this.handleInputChange} 
                             placeholder="Low"
                         />
@@ -73,7 +203,7 @@ class SearchField extends React.Component {
                             className="range"
                             name="strengthHigh"
                             type="number"
-                            checked={this.state.fuzzy}
+                            value={this.state.strengthHigh}
                             onChange={this.handleInputChange} 
                             placeholder="High"
                         />
@@ -85,7 +215,7 @@ class SearchField extends React.Component {
                             className="range"
                             name="lossesLow"
                             type="number"
-                            checked={this.state.fuzzy}
+                            value={this.state.lossesLow}
                             onChange={this.handleInputChange}
                             placeholder="Low"
                         />
@@ -94,45 +224,55 @@ class SearchField extends React.Component {
                             className="range"
                             name="lossesHigh"
                             type="number"
-                            checked={this.state.fuzzy}
+                            value={this.state.lossesHigh}
                             onChange={this.handleInputChange} 
                             placeholder="High"
                         />
                     </label>
 
                     <label>
-                        <span className="describe"> Year (checked = BC) </span>
-
-                        <input
-                            name="yearLowBC"
-                            type="checkbox"
-                            checked={this.state.yearLowBC}
-                            onChange={this.handleCheckbox} 
-                        />
+                        <span className="describe"> Year </span>
                         <input
                             className="range"
                             name="yearLow"
                             type="number"
-                            checked={this.state.yearLow}
+                            value={this.state.yearLow}
                             onChange={this.handleInputChange} 
-                            placeholder="Low"
+                            placeholder="Low (can be negative)"
                         />
                         -
-                        <input
-                            name="yearHighBC"
-                            type="checkbox"
-                            checked={this.state.yearHighBC}
-                            onChange={this.handleCheckbox} 
-                        />
                         <input
                             className="range"
                             name="yearHigh"
                             type="number"
-                            checked={this.state.yearHigh}
+                            value={this.state.yearHigh}
                             onChange={this.handleInputChange} 
-                            placeholder="High"
+                            placeholder="High (can be negative)"
                         />
                     </label>
+
+                    <label>
+                      <input 
+                        type="radio"
+                        name="sort"
+                        value="score"
+                        checked={this.state.sort === 'score'}
+                        onChange={this.handleInputChange} 
+                      />
+                      <span > Sort by score </span>
+                    </label>
+
+                    <label>
+                    <input 
+                        type="radio"
+                        name="sort"
+                        value="year"
+                        checked={this.state.sort === 'year'}
+                        onChange={this.handleInputChange} 
+                      />
+                      <span > Sort by year </span>
+                    </label>
+
                     <input type="submit" value="Submit" />
                 </form>
             </div>

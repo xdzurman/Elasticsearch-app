@@ -1,15 +1,13 @@
 import React from 'react';
-import SearchField from './SearchField'
 import TopBar from './TopBar'
-import SearchResults from './SearchResults'
+import Search from './Search'
 
 function App() {
   return (
     <div className="App">
       <TopBar />
       <div className="body">
-        <SearchField />
-        <SearchResults />
+        <Search />
       </div>
     </div>
   );
