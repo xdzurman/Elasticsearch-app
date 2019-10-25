@@ -28,7 +28,6 @@ class SearchField extends React.Component {
   }
 
   handleInputChange(e) {
-    console.log(e.target.name, e.target.value)
     this.setState({ [e.target.name]: e.target.value });
   }
 
@@ -37,6 +36,11 @@ class SearchField extends React.Component {
       return '_score'
     } else if (type === 'year') {
       return { year: 'desc' }
+    } else if (type === 'casualties') {
+      return [ 
+        {losses1: 'desc'},
+        {losses2: 'desc'}
+      ]
     }
   }
 
@@ -106,8 +110,6 @@ class SearchField extends React.Component {
     }
 
     const cleanedReq = JSON.stringify(req).replace(/,{}/g, '')
-    console.log(JSON.stringify(req).replace(/,{}/g, ''))
-
     const data = await fetch('/battles/_search', {
       method: 'POST',
       headers: {
@@ -226,6 +228,17 @@ class SearchField extends React.Component {
               onChange={this.handleInputChange}
             />
             <span > Sort by year </span>
+          </label>
+
+          <label>
+            <input
+              type="radio"
+              name="sort"
+              value="casualties"
+              checked={this.state.sort === 'casualties'}
+              onChange={this.handleInputChange}
+            />
+            <span > Sort by casualties </span>
           </label>
 
           <input type="submit" value="Submit" />

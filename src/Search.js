@@ -16,7 +16,6 @@ class Search extends React.Component {
         if(data && data.hits && data.hits.hits) {
             results = data.hits.hits
         }
-        console.log(results)
         this.setState({results: results})
     }
 
